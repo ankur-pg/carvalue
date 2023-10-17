@@ -37,3 +37,9 @@ $ npm run test:cov
 ## CRUD
 
 Supports GET, POST, PATCH, DELETE operations
+
+## Test
+
+```
+GET http://localhost:3000/auth/1
+```
