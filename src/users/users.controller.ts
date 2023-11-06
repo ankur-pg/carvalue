@@ -1,19 +1,59 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Session, UseInterceptors } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDto } from './dtos/user.dto';
+import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user-decorator';
+import { User } from './users.entity';
 
 @Controller('auth')
 @Serialize(UserDto)
+// @UseInterceptors(CurrentUserInterceptor)
 export class UsersController {
-  constructor(private service: UsersService) {}
+  constructor(private service: UsersService, private authService: AuthService) {}
+
+  // Added to Test Cookie and Session
+  @Get('/colors/:color')
+  setColor(@Param('color') color: string, @Session() session: any) {
+    session.color = color
+  }
+
+  @Get('/colors')
+  getColor(@Session() session: any) {
+    return session.color
+  }
+  // Ends
+
+  // @Get('/whoami')
+  // whoAmI(@Session() session: any) {
+  //   return this.service.findOne(session.userId)
+  // }
+
+  @Get('/whoami')
+  whoAmI(@CurrentUser() user: User) {
+    return user
+  }
 
   @Post('/signup')
-  createUser(@Body() body: CreateUserDto) {
-    console.log(body)
-    this.service.createUser(body.email, body.password)
+  async createUser(@Body() body: CreateUserDto, @Session() session: any) {
+    const user = await this.authService.signup(body.email, body.password)
+    session.userId = user.id
+    return user
+
+  }
+
+  @Post('/signin')
+  async signin(@Body() body: CreateUserDto, @Session() session: any) {
+    const user = await this.authService.signin(body.email, body.password)
+    session.userId = user.id
+    return user
+  }
+
+  @Post('/signout')
+  signout(@Session() session: any) {
+    session.userId = null
   }
 
   @Get()
