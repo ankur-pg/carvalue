@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing'
 import { AuthService } from './auth.service'
 import { UsersService } from './users.service'
 import { User } from './users.entity'
+import { NotFoundException } from '@nestjs/common'
 
 let authService: AuthService
 
@@ -10,6 +11,7 @@ beforeEach(async () => {
   const fakeUser = new User()
   fakeUser.id = 1
   fakeUser.email = 'a@a.com'
+  fakeUser.password = 'jkl.313233'
 
   const findUser = async (email: string) => {
     if(email === 'b@b.com') {
@@ -61,4 +63,19 @@ it('calls signup and throws error for existing user', async () => {
     newUser = await authService.signup(email, pwd)
   } catch (err) { }
   expect(newUser).toBeUndefined()
+})
+
+it('call signin with incorrect email and throw exception', async () => {
+  await expect(authService.signin('a@a.com', '123')).rejects.toThrow(NotFoundException)
+})
+
+it('calls signin with correct email', async () => {
+  const hashedPassword = '123'
+  jest.spyOn(authService, 'encryptPassword').mockImplementation(async () => Buffer.from(hashedPassword))
+
+  const user = await authService.signin('b@b.com', '123')
+  const [salt, hash] = user.password.split('.')
+
+  expect(salt).toBeDefined()
+  expect(hash).toBeDefined()
 })
