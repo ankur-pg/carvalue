@@ -48,7 +48,6 @@ export class AuthService {
    const [salt, hash] = user.password.split('.')
    const hashUserPassword = await this.encryptPassword(password, salt)
 
-   console.log('hashUserPassword = ', hashUserPassword.toString('hex'))
    if(hashUserPassword.toString('hex') !== hash) {
     throw new BadRequestException('Incorrect email or password')
    }
