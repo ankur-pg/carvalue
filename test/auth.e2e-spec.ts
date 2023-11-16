@@ -18,12 +18,12 @@ describe('Authentication System (e2e)', () => {
   it('handles signup request', () => {
     return request(app.getHttpServer())
       .post('/auth/signup')
-      .send({ email: 't@t.com', password: '123' })
+      .send({ email: 'e2et2@t.com', password: '123' })
       .expect(201)
       .then((res) => {
         const { id, email } = res.body
         expect(id).toBeDefined()
-        expect(email).toEqual('t@t.com')
+        expect(email).toEqual('e2et2@t.com')
       })
   });
 });
