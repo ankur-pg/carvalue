@@ -29,8 +29,14 @@ describe('Authentication System (e2e)', () => {
 
   it('signup as a new user and get the logged in user', async () => {
     const httpRequest = await request(app.getHttpServer())
-    await httpRequest.post('/auth/signup').send({ email: 'e2et2@t.com', password: '123' })
+    const res = await httpRequest.post('/auth/signup').send({ email: 'e2et2@t.com', password: '123' })
+    const cookie = res.get('Set-Cookie')
     
+    const { body } = await httpRequest.get('/auth/whoami')
+              .set('Cookie', cookie)
+              .send().expect(200)
+    expect(body.email).toEqual('e2et2@t.com')
+
     const loginResponse = await httpRequest.post('/auth/signin').send({ email: 'e2et2@t.com', password: '123' })
     expect(loginResponse).toBeDefined()
     expect(loginResponse.body.email).toEqual('e2et2@t.com')
