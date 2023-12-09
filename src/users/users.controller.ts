@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user-decorator';
 import { User } from './users.entity';
 import { AuthGuard } from '../guards/auth.guard';
+import { AdminGuard } from 'src/guards/admin.guard';
 
 @Controller('auth')
 @Serialize(UserDto)
@@ -73,6 +74,7 @@ export class UsersController {
   }
 
   @Patch('/:id')
+  @UseGuards(AdminGuard)
   updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
     return this.service.update(parseInt(id), body)
   }
